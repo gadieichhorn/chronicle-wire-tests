@@ -5,25 +5,50 @@
  */
 package com.rds.chronicle.wire.tests;
 
-import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.UUID;
+import java.util.function.Function;
 import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.wire.BinaryWire;
 import net.openhft.chronicle.wire.Wire;
+import net.openhft.chronicle.wire.WireType;
+import net.openhft.chronicle.wire.Wires;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author gadei
  */
+@RunWith(value = Parameterized.class)
 public class WireCollectionTest {
 
-    private WireCollection data;
+    private static final Logger logger = LoggerFactory.getLogger(WirePropertyTest.class);
+    private WireCollection collection;// = new WireModel();
 
-    public WireCollectionTest() {
+    private final Function<Bytes, Wire> wireType;
+
+    public WireCollectionTest(Function<Bytes, Wire> wireType) {
+        this.wireType = wireType;
+    }
+
+    @Parameterized.Parameters
+    public static Collection<Object[]> combinations() {
+        return Arrays.asList(
+                new Object[]{(Function<Bytes, Wire>) bytes -> new BinaryWire(bytes, false, true, false, 128, "binary")},
+                new Object[]{WireType.TEXT},
+                new Object[]{WireType.BINARY},
+                new Object[]{WireType.FIELDLESS_BINARY}
+        );
     }
 
     @BeforeClass
@@ -36,7 +61,9 @@ public class WireCollectionTest {
 
     @Before
     public void setUp() {
-//        data = new WireCollection("100", "@", "root", 1000, 0, "sdf34trsdf84sdfvewrsdvd4r345345345sdf");
+        collection = new WireCollection("reference", "@", "name", 234234234, 23, UUID.randomUUID().toString());
+        WireProperty property = new WireProperty("reference", "path", "name", "value", 5345, 32432, UUID.randomUUID().toString());
+        collection.addPropertie(property);
     }
 
     @After
@@ -45,22 +72,23 @@ public class WireCollectionTest {
 
     @Test
     public void testSomeMethod() {
+        logger.info("Type: {}", this.wireType);
+                
+        Bytes bytes = Bytes.elasticByteBuffer();
+        Wire wire = wireType.apply(bytes);
 
-        Bytes<ByteBuffer> bytes = Bytes.elasticByteBuffer();
-        Wire wire = new BinaryWire(bytes);
+        wire.writeDocument(true, collection);
+        System.out.println(Wires.fromSizePrefixedBlobs(bytes));
 
-//        wire2.writeDocument(false, w -> w.write(() -> "mydata")
-//                .sequence(v -> Stream.of(data).forEach(v::object)));
-//        System.out.println(Wires.fromSizePrefixedBlobs(bytes));
-//
-//        List<Data> dataList2 = new ArrayList<>();
-//        assertTrue(wire.readDocument(null, w -> w.read(() -> "mydata")
-//                .sequence(v -> {
-//                    while (v.hasNextSequenceItem()) {
-//                        dataList2.add(v.object(Data.class));
-//                    }
-//                })));
-//        dataList2.forEach(System.out::println);
+        WireCollection results = new WireCollection();
+        wire.readDocument(results, null);
+
+        assertEquals(collection.getId(), results.getId());
+        assertEquals(collection.getRevision(), results.getRevision());
+        assertEquals(collection.getKey(), results.getKey());
+        assertEquals(collection.getName(), results.getName());
+        assertEquals(collection.getPath(), results.getPath());
+        assertEquals(collection.getReference(), results.getReference());
     }
 
 }

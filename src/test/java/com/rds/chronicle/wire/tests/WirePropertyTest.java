@@ -30,14 +30,14 @@ import org.slf4j.LoggerFactory;
  * @author gadei
  */
 @RunWith(value = Parameterized.class)
-public class WireModelTest {
+public class WirePropertyTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(WireModelTest.class);
-    private WireProperty model;// = new WireModel();
+    private static final Logger logger = LoggerFactory.getLogger(WirePropertyTest.class);
+    private WireProperty property;// = new WireModel();
 
     private final Function<Bytes, Wire> wireType;
 
-    public WireModelTest(Function<Bytes, Wire> wireType) {
+    public WirePropertyTest(Function<Bytes, Wire> wireType) {
         this.wireType = wireType;
     }
 
@@ -48,30 +48,40 @@ public class WireModelTest {
                 new Object[]{WireType.TEXT},
                 new Object[]{WireType.BINARY},
                 new Object[]{WireType.FIELDLESS_BINARY}
-//                new Object[]{WireType.JSON}
         );
     }
-
+        
     @BeforeClass
     public static void setUpClass() {
     }
-
+    
     @AfterClass
     public static void tearDownClass() {
     }
-
+    
     @Before
     public void setUp() {
-        model = new WireProperty("reference", "@", "name", "value", 231343454, 13, UUID.randomUUID().toString());
+        property = new WireProperty("reference", "@", "name", "value", 12312312, 123, UUID.randomUUID().toString());
     }
-
+    
     @After
     public void tearDown() {
     }
 
     /**
-     * Test of readMarshallable method, of class WireModel.
+     * Test of readMarshallable method, of class WireProperty.
      */
+    @Test
+    public void testReadMarshallable() {
+    }
+
+    /**
+     * Test of writeMarshallable method, of class WireProperty.
+     */
+    @Test
+    public void testWriteMarshallable() {
+    }
+
     @Test
     public void testMultipleReads() {
         logger.info("Type: {}", this.wireType);
@@ -79,20 +89,15 @@ public class WireModelTest {
         Bytes bytes = Bytes.elasticByteBuffer();
         Wire wire = wireType.apply(bytes);
 
-        wire.writeDocument(true, model);
+        wire.writeDocument(true, property);
         System.out.println(Wires.fromSizePrefixedBlobs(bytes));
 
-        WireProperty results = new WireProperty();
+        WireModel results = new WireModel();
         wire.readDocument(results, null);
 
-        assertEquals(model.getId(), results.getId());
-        assertEquals(model.getRevision(), results.getRevision());
-        assertEquals(model.getKey(), results.getKey());
-        assertEquals(model.getName(), results.getName());
-        assertEquals(model.getReference(), results.getReference());
-        assertEquals(model.getPath(), results.getPath());
-        assertEquals(model.getValue(), results.getValue());
-        
+        assertEquals(property.getId(), results.getId());
+        assertEquals(property.getRevision(), results.getRevision());
+        assertEquals(property.getKey(), results.getKey());
     }
-
+    
 }
