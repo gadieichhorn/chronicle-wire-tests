@@ -7,8 +7,10 @@ package com.rds.chronicle.wire.tests;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Random;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.stream.Stream;
 import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.wire.BinaryWire;
 import net.openhft.chronicle.wire.Wire;
@@ -61,9 +63,21 @@ public class WireCollectionTest {
 
     @Before
     public void setUp() {
+        Random rand = new Random();
+
         collection = new WireCollection("reference", "@", "name", 234234234, 23, UUID.randomUUID().toString());
-        WireProperty property = new WireProperty("reference", "path", "name", "value", 5345, 32432, UUID.randomUUID().toString());
-        collection.addPropertie(property);
+
+        Stream.of(1, 10).forEach((i) -> {
+            collection.addProperty(new WireProperty("reference" + i, "@:" + i, "name" + i, UUID.randomUUID().toString().replace("-", ""), rand.nextLong(), rand.nextInt(), UUID.randomUUID().toString()));
+        });
+
+        Stream.of(1, 3).forEach((i) -> {
+            WireCollection c = new WireCollection("reference" + i, "@:" + i, "name" + i, rand.nextLong(), rand.nextInt(), UUID.randomUUID().toString());
+            collection.addCollection(c);
+            Stream.of(1, 3).forEach((k) -> {
+                collection.addProperty(new WireProperty("reference" + k, "@:" + i + "-" + k, "name" + k, UUID.randomUUID().toString().replace("-", ""), rand.nextLong(), rand.nextInt(), UUID.randomUUID().toString()));
+            });
+        });
     }
 
     @After
@@ -73,22 +87,17 @@ public class WireCollectionTest {
     @Test
     public void testSomeMethod() {
         logger.info("Type: {}", this.wireType);
-                
+
         Bytes bytes = Bytes.elasticByteBuffer();
         Wire wire = wireType.apply(bytes);
 
         wire.writeDocument(true, collection);
-        System.out.println(Wires.fromSizePrefixedBlobs(bytes));
+        logger.info(Wires.fromSizePrefixedBlobs(bytes));
 
         WireCollection results = new WireCollection();
         wire.readDocument(results, null);
 
-        assertEquals(collection.getId(), results.getId());
-        assertEquals(collection.getRevision(), results.getRevision());
-        assertEquals(collection.getKey(), results.getKey());
-        assertEquals(collection.getName(), results.getName());
-        assertEquals(collection.getPath(), results.getPath());
-        assertEquals(collection.getReference(), results.getReference());
+        WireUtils.compareWireCollection(collection, results);
     }
 
 }

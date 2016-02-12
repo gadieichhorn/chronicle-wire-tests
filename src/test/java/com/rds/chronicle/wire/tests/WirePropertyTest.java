@@ -90,14 +90,13 @@ public class WirePropertyTest {
         Wire wire = wireType.apply(bytes);
 
         wire.writeDocument(true, property);
-        System.out.println(Wires.fromSizePrefixedBlobs(bytes));
+        logger.info(Wires.fromSizePrefixedBlobs(bytes));
 
-        WireModel results = new WireModel();
+        WireProperty results = new WireProperty();
         wire.readDocument(results, null);
 
-        assertEquals(property.getId(), results.getId());
-        assertEquals(property.getRevision(), results.getRevision());
-        assertEquals(property.getKey(), results.getKey());
+        WireUtils.compareWireProperty(property, results);
+
     }
     
 }

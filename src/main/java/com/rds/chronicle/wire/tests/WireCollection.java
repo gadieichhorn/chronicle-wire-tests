@@ -91,7 +91,7 @@ public class WireCollection extends WireModel implements Marshallable {
         this.properties = properties;
     }
 
-    public void addPropertie(WireProperty property) {
+    public void addProperty(WireProperty property) {
         this.properties.add(property);
     }
 

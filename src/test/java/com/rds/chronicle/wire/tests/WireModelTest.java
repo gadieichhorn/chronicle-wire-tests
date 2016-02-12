@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 public class WireModelTest {
 
     private static final Logger logger = LoggerFactory.getLogger(WireModelTest.class);
-    private WireProperty model;// = new WireModel();
+    private WireModel model;// = new WireModel();
 
     private final Function<Bytes, Wire> wireType;
 
@@ -62,7 +62,7 @@ public class WireModelTest {
 
     @Before
     public void setUp() {
-        model = new WireProperty("reference", "@", "name", "value", 231343454, 13, UUID.randomUUID().toString());
+        model = new WireModel(231343454, 13, UUID.randomUUID().toString());
     }
 
     @After
@@ -80,18 +80,12 @@ public class WireModelTest {
         Wire wire = wireType.apply(bytes);
 
         wire.writeDocument(true, model);
-        System.out.println(Wires.fromSizePrefixedBlobs(bytes));
+        logger.info(Wires.fromSizePrefixedBlobs(bytes));
 
-        WireProperty results = new WireProperty();
+        WireModel results = new WireModel();
         wire.readDocument(results, null);
 
-        assertEquals(model.getId(), results.getId());
-        assertEquals(model.getRevision(), results.getRevision());
-        assertEquals(model.getKey(), results.getKey());
-        assertEquals(model.getName(), results.getName());
-        assertEquals(model.getReference(), results.getReference());
-        assertEquals(model.getPath(), results.getPath());
-        assertEquals(model.getValue(), results.getValue());
+        WireUtils.compareWireModel(model, results);
         
     }
 
