@@ -46,13 +46,13 @@ public class WireCollection extends WireModel implements Marshallable {
     }
 
     @Override
-
     public void writeMarshallable(WireOut wire) {
         super.writeMarshallable(wire);
         wire
                 .write(WireCollection.Values.REFERENCE).text(reference)
                 .write(WireCollection.Values.PATH).text(path)
                 .write(WireCollection.Values.NAME).text(name);
+
     }
 
     public String getReference() {
