@@ -7,10 +7,7 @@ package com.rds.chronicle.wire.tests;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Random;
-import java.util.UUID;
 import java.util.function.Function;
-import java.util.stream.Stream;
 import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.wire.BinaryWire;
 import net.openhft.chronicle.wire.Wire;
@@ -18,7 +15,6 @@ import net.openhft.chronicle.wire.WireType;
 import net.openhft.chronicle.wire.Wires;
 import org.junit.After;
 import org.junit.AfterClass;
-import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -46,7 +42,7 @@ public class WireCollectionTest {
     @Parameterized.Parameters
     public static Collection<Object[]> combinations() {
         return Arrays.asList(
-                new Object[]{(Function<Bytes, Wire>) bytes -> new BinaryWire(bytes, false, true, false, 128, "binary")},
+                //new Object[]{(Function<Bytes, Wire>) bytes -> new BinaryWire(bytes, false, true, false, 128, "binary")},
                 new Object[]{WireType.TEXT},
                 new Object[]{WireType.BINARY},
                 new Object[]{WireType.FIELDLESS_BINARY}
@@ -63,21 +59,7 @@ public class WireCollectionTest {
 
     @Before
     public void setUp() {
-        Random rand = new Random();
-
-        collection = new WireCollection("reference", "@", "name", 234234234, 23, UUID.randomUUID().toString());
-
-        Stream.of(1, 10).forEach((i) -> {
-            collection.addProperty(new WireProperty("reference" + i, "@:" + i, "name" + i, UUID.randomUUID().toString().replace("-", ""), rand.nextLong(), rand.nextInt(), UUID.randomUUID().toString()));
-        });
-
-        Stream.of(1, 3).forEach((i) -> {
-            WireCollection c = new WireCollection("reference" + i, "@:" + i, "name" + i, rand.nextLong(), rand.nextInt(), UUID.randomUUID().toString());
-            collection.addCollection(c);
-            Stream.of(1, 3).forEach((k) -> {
-                collection.addProperty(new WireProperty("reference" + k, "@:" + i + "-" + k, "name" + k, UUID.randomUUID().toString().replace("-", ""), rand.nextLong(), rand.nextInt(), UUID.randomUUID().toString()));
-            });
-        });
+        collection = WireUtils.randomWireCollection();
     }
 
     @After

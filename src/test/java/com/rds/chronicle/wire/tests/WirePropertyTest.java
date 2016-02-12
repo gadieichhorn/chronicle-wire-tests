@@ -19,7 +19,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
@@ -33,6 +32,7 @@ import org.slf4j.LoggerFactory;
 public class WirePropertyTest {
 
     private static final Logger logger = LoggerFactory.getLogger(WirePropertyTest.class);
+
     private WireProperty property;// = new WireModel();
 
     private final Function<Bytes, Wire> wireType;
@@ -50,20 +50,20 @@ public class WirePropertyTest {
                 new Object[]{WireType.FIELDLESS_BINARY}
         );
     }
-        
+
     @BeforeClass
     public static void setUpClass() {
     }
-    
+
     @AfterClass
     public static void tearDownClass() {
     }
-    
+
     @Before
     public void setUp() {
         property = new WireProperty("reference", "@", "name", "value", 12312312, 123, UUID.randomUUID().toString());
     }
-    
+
     @After
     public void tearDown() {
     }
@@ -85,7 +85,7 @@ public class WirePropertyTest {
     @Test
     public void testMultipleReads() {
         logger.info("Type: {}", this.wireType);
-                
+
         Bytes bytes = Bytes.elasticByteBuffer();
         Wire wire = wireType.apply(bytes);
 
@@ -98,5 +98,5 @@ public class WirePropertyTest {
         WireUtils.compareWireProperty(property, results);
 
     }
-    
+
 }

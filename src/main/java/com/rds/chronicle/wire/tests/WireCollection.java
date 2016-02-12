@@ -23,7 +23,7 @@ public class WireCollection extends WireModel implements Marshallable {
     private String reference;
     private String path;
     private String name;
-    private List<WireProperty> properties = new ArrayList<>();
+    private Map<String, WireProperty> properties = new HashMap<>();
     private Map<String, WireCollection> collections = new HashMap<>();
 
     public WireCollection() {
@@ -42,7 +42,8 @@ public class WireCollection extends WireModel implements Marshallable {
         this.reference = wire.read(WireCollection.Values.REFERENCE).text();
         this.path = wire.read(WireCollection.Values.PATH).text();
         this.name = wire.read(WireCollection.Values.NAME).text();
-        //this.properties = wire.read(WireCollection.Values.PROPERTIES).;
+        this.properties = wire.read(WireCollection.Values.PROPERTIES).marshallableAsMap(WireProperty.class);
+        this.collections = wire.read(WireCollection.Values.COLLECTIONS).marshallableAsMap(WireCollection.class);
     }
 
     @Override
@@ -52,7 +53,12 @@ public class WireCollection extends WireModel implements Marshallable {
                 .write(WireCollection.Values.REFERENCE).text(reference)
                 .write(WireCollection.Values.PATH).text(path)
                 .write(WireCollection.Values.NAME).text(name);
-
+        if (properties.size() > 0) {
+            wire.write(WireCollection.Values.PROPERTIES).marshallableAsMap(properties);
+        }
+        if (collections.size() > 0) {
+            wire.write(WireCollection.Values.COLLECTIONS).marshallableAsMap(collections);
+        }
     }
 
     public String getReference() {
@@ -83,16 +89,16 @@ public class WireCollection extends WireModel implements Marshallable {
         properties.clear();
     }
 
-    public List<WireProperty> getProperties() {
+    public Map<String, WireProperty> getProperties() {
         return properties;
     }
 
-    public void setProperties(List<WireProperty> properties) {
+    public void setProperties(Map<String, WireProperty> properties) {
         this.properties = properties;
     }
 
     public void addProperty(WireProperty property) {
-        this.properties.add(property);
+        this.properties.put(property.getReference(), property);
     }
 
     public void setCollections(Map<String, WireCollection> collections) {
