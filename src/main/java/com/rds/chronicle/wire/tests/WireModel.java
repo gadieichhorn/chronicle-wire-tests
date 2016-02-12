@@ -7,8 +7,7 @@ package com.rds.chronicle.wire.tests;
 
 import net.openhft.chronicle.core.annotation.NotNull;
 import net.openhft.chronicle.wire.Marshallable;
-import net.openhft.chronicle.wire.WireIn;
-import net.openhft.chronicle.wire.WireOut;
+import net.openhft.chronicle.wire.*;
 
 /**
  *
@@ -16,13 +15,17 @@ import net.openhft.chronicle.wire.WireOut;
  */
 public class WireModel implements Marshallable {
 
+    enum Values implements WireKey {
+        ID, REVISION, KEY
+    };
+
     private long id;
     private int revision;
     private String key;
 
     public WireModel() {
     }
-    
+
     public WireModel(long id, int revision, String key) {
         this.id = id;
         this.revision = revision;
@@ -31,17 +34,17 @@ public class WireModel implements Marshallable {
 
     @Override
     public void readMarshallable(@NotNull WireIn wire) throws IllegalStateException {
-        this.id = wire.read(() -> "id").int64();
-        this.revision = wire.read(() -> "revision").int32();
-        this.key = wire.read(() -> "ket").text();
+        this.id = wire.read(WireModel.Values.ID).int64();
+        this.revision = wire.read(WireModel.Values.REVISION).int32();
+        this.key = wire.read(WireModel.Values.KEY).text();
     }
 
     @Override
     public void writeMarshallable(WireOut wire) {
-        wire       
-                .write(() -> "id").int64(id)
-                .write(() -> "revision").int32(revision)
-                .write(() -> "key").text(key);
+        wire
+                .write(WireModel.Values.ID).int64(id)
+                .write(WireModel.Values.REVISION).int32(revision)
+                .write(WireModel.Values.KEY).text(key);
     }
 
     public long getId() {
@@ -66,15 +69,6 @@ public class WireModel implements Marshallable {
 
     public void setKey(String key) {
         this.key = key;
-    }
-
-    @Override
-    public String toString() {
-        return "Model{"
-                + "key='" + key
-                + ", id=" + id
-                + ", revision=" + revision
-                + '}';
     }
 
 }
